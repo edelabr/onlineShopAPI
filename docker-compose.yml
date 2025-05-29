@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+    container_name: task_manager_api_app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    restart: always
+    volumes:
+      - .:/app # Para desarrollo local
+
+  db:
+    image: postgres:14
+    container_name: task_manager_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:7
+    container_name: task_manager_redis
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    restart: always
+
+volumes:
+  postgres_data:

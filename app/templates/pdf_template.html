@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reporte Meteorológico - {{ city }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #333;
+        padding: 6px;
+        text-align: center;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      h2 {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Reporte Meteorológico - {{ city }}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Temperatura (°C)</th>
+          <th>Humedad Relativa (%)</th>
+          <th>Lluvia (mm)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if forecast and forecast|length > 0 %} {% for item in forecast %}
+        <tr>
+          <td>{{ item.time }}</td>
+          <td>{{ item.temperature_2m }}</td>
+          <td>{{ item.relative_humidity_2m }}</td>
+          <td>{{ item.rain }}</td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="4">No hay datos disponibles.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </body>
+</html>

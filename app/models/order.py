@@ -1,0 +1,25 @@
+from datetime import datetime
+from typing import Optional
+from sqlmodel import SQLModel, Field
+
+class OrderBase(SQLModel):
+    quantity: int
+
+class Order(OrderBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    product_id: int 
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class OrderCreate(OrderBase):
+    client_username: str
+    product: str
+
+class OrderRead(OrderBase):
+    id: int
+    client_username: str
+    product: str
+    created_at: datetime
+
+class OrderUpdate(SQLModel):
+    quantity: Optional[int] = None
