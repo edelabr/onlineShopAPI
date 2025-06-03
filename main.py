@@ -24,11 +24,19 @@ async def log_requests(request: Request, call_next):
 
     res_body = [section async for section in response.body_iterator]
     response.body_iterator = iterate_in_threadpool(iter(res_body))
-    res_body = res_body[0].decode()
-    
+
+    content_type = response.headers.get("content-type", "")
+    if content_type.startswith("application/json") or content_type.startswith("text"):
+        try:
+            decoded_body = res_body[0].decode("utf-8")
+        except UnicodeDecodeError:
+            decoded_body = "<binary content>"
+    else:
+        decoded_body = "<binary content>"
+
     logger.info(f"{request.method} {request.url.path} - {response.status_code} - {process_time:.2f}s")
-    logger.info(f"Request: {request.method} {request.url} Body: {body.decode('utf-8') if body else 'No Body'}")
-    logger.info(f"Response: {res_body}")
+    logger.info(f"Request: {request.method} {request.url} Body: {body.decode('utf-8', errors='ignore') if body else 'No Body'}")
+    logger.info(f"Response: {decoded_body}")
 
     return response
 

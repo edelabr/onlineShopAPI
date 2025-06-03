@@ -52,8 +52,7 @@ def get_order_pdf_endpoint(
     # Convertir los objetos Pydantic a diccionarios
     dict_data = [item.model_dump() for item in data]
 
-    filepath = generate_pdf(current_user["sub"], dict_data)
-    return FileResponse(path=filepath, media_type="application/pdf", filename=os.path.basename(filepath))
+    return generate_pdf(current_user["sub"], dict_data)
 
 @router.get("/{customer_name}/excel")
 def get_order_excel_endpoint(
@@ -65,11 +64,11 @@ def get_order_excel_endpoint(
 ):
     data = read_order(None, None, customer_name, None, skip, limit, db, current_user)
 
-    # Convertir los objetos Pydantic a diccionarios
     dict_data = [item.model_dump() for item in data]
 
-    filepath = generate_excel(current_user["sub"], dict_data)
-    return FileResponse(filepath, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename=os.path.basename(filepath))
+    # Devuelve directamente el StreamingResponse de generate_excel
+    return generate_excel(current_user["sub"], dict_data)
+
 
 @router.get("/{customer_name}/csv")
 def get_order_csv_endpoint(
@@ -84,5 +83,4 @@ def get_order_csv_endpoint(
     # Convertir los objetos Pydantic a diccionarios
     dict_data = [item.model_dump() for item in data]
 
-    filepath = generate_csv(current_user["sub"], dict_data)
-    return FileResponse(filepath, media_type='text/csv', filename=os.path.basename(filepath))
+    return generate_csv(current_user["sub"], dict_data)
