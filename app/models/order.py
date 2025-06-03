@@ -19,6 +19,7 @@ class OrderRead(OrderBase):
     id: int
     customer_username: str
     product: str
+    price: float
     created_at: datetime
 
 class OrderUpdate(SQLModel):

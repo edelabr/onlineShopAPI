@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Orders - {{ consumer_name }}</title>
+    <title>Orders - {{ customer_name }}</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -25,10 +25,14 @@
       h2 {
         text-align: center;
       }
+      tfoot td {
+        font-weight: bold;
+        background-color: #f9f9f9;
+      }
     </style>
   </head>
   <body>
-    <h2>Orders - {{ consumer_name }}</h2>
+    <h2>Orders - {{ customer_name }}</h2>
     <table>
       <thead>
         <tr>
@@ -42,7 +46,7 @@
       <tbody>
         {% if orders and orders|length > 0 %} {% for item in orders %}
         <tr>
-          <td>{{ item.created_date }}</td>
+          <td>{{ item.created_at }}</td>
           <td>{{ item.product }}</td>
           <td>{{ item.quantity }}</td>
           <td>{{ item.price }}</td>
@@ -54,6 +58,14 @@
         </tr>
         {% endif %}
       </tbody>
+      {% if orders and orders|length > 0 %}
+      <tfoot>
+        <tr>
+          <td colspan="4">Grand Total</td>
+          <td>{{ grand_total }}</td>
+        </tr>
+      </tfoot>
+      {% endif %}
     </table>
   </body>
 </html>

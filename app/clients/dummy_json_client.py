@@ -1,4 +1,8 @@
 import requests
+import urllib3
+
+# Desactiva advertencias por verificación SSL (¡solo para desarrollo!)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def get_products(skip: int = 0, limit: int = 0):
     try:
@@ -24,9 +28,8 @@ def get_products(skip: int = 0, limit: int = 0):
 def get_product_by_id(product_id: int):
     try:
         products = get_products()
-        print(products)
         filtered_products = list(filter(lambda p: p["id"] == product_id, products))
-        print(filtered_products)
+
         if filtered_products:
             return filtered_products[0]
         print(f"No product found with id: {product_id}")

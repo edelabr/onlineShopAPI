@@ -41,6 +41,7 @@ def read_order(
             order_read = OrderRead(
                 id=order[0],
                 product=product["title"],
+                price=product["price"],
                 quantity=order[2],
                 customer_username=order[3],
                 created_at=order[4]
@@ -88,6 +89,7 @@ def create_order(
         id=new_order.id,
         quantity=new_order.quantity,
         product=product["title"],
+        price=product["price"],
         customer_username=owner.username,
         created_at=new_order.created_at
     )
@@ -128,6 +130,7 @@ def update_order(
         returned_new_list = OrderRead(
         id=order.id,
         product=product["title"],
+        price=product["price"],
         quantity=order.quantity,
         customer_username=owner.username,
         created_at=order.created_at

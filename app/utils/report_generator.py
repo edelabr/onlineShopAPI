@@ -22,9 +22,10 @@ def generate_csv(customer_name, data):
     return path
 
 def generate_pdf(customer_name, data):
-    env = Environment(loader=FileSystemLoader("templates"))
+    env = Environment(loader=FileSystemLoader("app/templates"))
     template = env.get_template("pdf_template.html")
-    html_content = template.render(customer_name=customer_name, orders=data)
+    grand_total = sum(item['price'] * item['quantity'] for item in data)
+    html_content = template.render(customer_name=customer_name, orders=data, grand_total=grand_total)
 
     folder = "generated_files"
     os.makedirs(folder, exist_ok=True)

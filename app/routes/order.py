@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
@@ -38,7 +39,7 @@ def update_order_endpoint(id: int, order_update: OrderUpdate, db: Session = Depe
 def delete_order_endpoint(id: int, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin", "customer"))):
     return delete_order(id, db, current_user)
 
-@router.get("/{customer_name}/pdf", response_model=List[OrderRead])
+@router.get("/{customer_name}/pdf")
 def get_order_pdf_endpoint(
     customer_name: str,
     skip: int = 0,
@@ -47,11 +48,14 @@ def get_order_pdf_endpoint(
     current_user: dict = Depends(require_role("admin", "customer"))
 ):
     data = read_order(None, None, customer_name, None, skip, limit, db, current_user)
-    print(data)
-    filepath = generate_pdf(current_user["sub"], data)
-    return FileResponse(filepath, media_type='application/pdf', filename=os.path.basename(filepath))
 
-@router.get("/{customer_name}/excel", response_model=List[OrderRead])
+    # Convertir los objetos Pydantic a diccionarios
+    dict_data = [item.model_dump() for item in data]
+
+    filepath = generate_pdf(current_user["sub"], dict_data)
+    return FileResponse(path=filepath, media_type="application/pdf", filename=os.path.basename(filepath))
+
+@router.get("/{customer_name}/excel")
 def get_order_excel_endpoint(
     customer_name: str,
     skip: int = 0,
@@ -60,11 +64,14 @@ def get_order_excel_endpoint(
     current_user: dict = Depends(require_role("admin", "customer"))
 ):
     data = read_order(None, None, customer_name, None, skip, limit, db, current_user)
-    
-    filepath = generate_excel(current_user["sub"], data)
+
+    # Convertir los objetos Pydantic a diccionarios
+    dict_data = [item.model_dump() for item in data]
+
+    filepath = generate_excel(current_user["sub"], dict_data)
     return FileResponse(filepath, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename=os.path.basename(filepath))
 
-@router.get("/{customer_name}/csv", response_model=List[OrderRead])
+@router.get("/{customer_name}/csv")
 def get_order_csv_endpoint(
     customer_name: str,
     skip: int = 0,
@@ -74,5 +81,8 @@ def get_order_csv_endpoint(
 ):
     data = read_order(None, None, customer_name, None, skip, limit, db, current_user)
     
-    filepath = generate_csv(current_user["sub"], data)
+    # Convertir los objetos Pydantic a diccionarios
+    dict_data = [item.model_dump() for item in data]
+
+    filepath = generate_csv(current_user["sub"], dict_data)
     return FileResponse(filepath, media_type='text/csv', filename=os.path.basename(filepath))
