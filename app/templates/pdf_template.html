@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Reporte Meteorológico - {{ city }}</title>
+    <title>Orders - {{ consumer_name }}</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -28,27 +28,29 @@
     </style>
   </head>
   <body>
-    <h2>Reporte Meteorológico - {{ city }}</h2>
+    <h2>Orders - {{ consumer_name }}</h2>
     <table>
       <thead>
         <tr>
-          <th>Hora</th>
-          <th>Temperatura (°C)</th>
-          <th>Humedad Relativa (%)</th>
-          <th>Lluvia (mm)</th>
+          <th>Date</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Unit price</th>
+          <th>Total price</th>
         </tr>
       </thead>
       <tbody>
-        {% if forecast and forecast|length > 0 %} {% for item in forecast %}
+        {% if orders and orders|length > 0 %} {% for item in orders %}
         <tr>
-          <td>{{ item.time }}</td>
-          <td>{{ item.temperature_2m }}</td>
-          <td>{{ item.relative_humidity_2m }}</td>
-          <td>{{ item.rain }}</td>
+          <td>{{ item.created_date }}</td>
+          <td>{{ item.product }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.price }}</td>
+          <td>{{ item.price * item.quantity }}</td>
         </tr>
         {% endfor %} {% else %}
         <tr>
-          <td colspan="4">No hay datos disponibles.</td>
+          <td colspan="5">No orders available.</td>
         </tr>
         {% endif %}
       </tbody>

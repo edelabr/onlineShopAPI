@@ -20,7 +20,7 @@ def insert_fake_data():
             # Crear datos falsos para User
             users = [
                 User(username="user_admin", email="user_admin@example.com", hashed_password=hash_password("user_admin"), role="admin", created_at=datetime.utcnow()),
-                User(username="user_client", email="user_client@example.com", hashed_password=hash_password("user_client"), role="client", created_at=datetime.utcnow())
+                User(username="user_customer", email="user_customer@example.com", hashed_password=hash_password("user_customer"), role="customer", created_at=datetime.utcnow())
             ]
             session.add_all(users)
             session.commit()

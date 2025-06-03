@@ -6,6 +6,7 @@ from starlette.concurrency import iterate_in_threadpool
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.routes import order, user, auth
+from app.services import products
 
 # Configurar logging
 config_path = os.path.join(os.path.dirname(__file__), 'logging.conf')
@@ -57,6 +58,7 @@ def read_root():
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(order.router)
+app.include_router(products.router)
 
 if __name__ == "__main__":
     import uvicorn

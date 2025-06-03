@@ -12,12 +12,12 @@ class Order(OrderBase, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class OrderCreate(OrderBase):
-    client_username: str
+    customer_username: str
     product: str
 
 class OrderRead(OrderBase):
     id: int
-    client_username: str
+    customer_username: str
     product: str
     created_at: datetime
 

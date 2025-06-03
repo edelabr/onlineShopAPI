@@ -18,7 +18,7 @@ def read_users(
 ):
     query = select(User)
 
-    if current_user["role"] in ["user"]:
+    if current_user["role"] in ["customer"]:
         query = query.where(User.username == current_user["sub"])
     if id:
         query = query.where(User.id == id)
@@ -82,7 +82,7 @@ def update_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if current_user["role"] in ["user", "viewer"] and current_user["sub"] != user.username:
+    if current_user["role"] in ["customer", "viewer"] and current_user["sub"] != user.username:
         raise HTTPException(status_code=403, detail="Insufficient permissions to update other users")
     
     existing_user_username = db.exec(select(User).where((User.username == user_update.username) & (User.id != id))).first()
@@ -117,7 +117,7 @@ def delete_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if current_user["role"] in ["user", "viewer"] and current_user["sub"] != user.username:
+    if current_user["role"] in ["customer", "viewer"] and current_user["sub"] != user.username:
         raise HTTPException(status_code=403, detail="Insufficient permissions to delete other users")
     
     try:

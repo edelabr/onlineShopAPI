@@ -17,7 +17,7 @@ def get_users_endpoint(
     skip: int = 0,
     limit: int = 10,
     db: Session = Depends(get_db_session),
-    current_user: dict = Depends(require_role("admin", "client"))
+    current_user: dict = Depends(require_role("admin", "customer"))
 ):
     return read_users(id, username, email, skip, limit, db, current_user)
 
@@ -26,9 +26,9 @@ def add_user_endpoint(user: UserCreate, db: Session = Depends(get_db_session), c
     return create_user(user, db, current_user)
         
 @router.put("/{id}", response_model=UserRead)
-def update_user_endpoint(id: int, user_update: UserUpdate, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin", "client"))):
+def update_user_endpoint(id: int, user_update: UserUpdate, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin", "customer"))):
     return update_user(id, user_update, db, current_user)
     
 @router.delete("/{id}")
-def delete_user_endpoint(id: int, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin", "client"))):
+def delete_user_endpoint(id: int, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin", "customer"))):
     return delete_user(id, db, current_user)
