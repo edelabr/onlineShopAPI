@@ -10,7 +10,7 @@ class RoleEnum(str, Enum):
 class UserBase(SQLModel):
     username: str = Field(index=True, unique=True)
     email: EmailStr = Field(index=True, unique=True)
-    role: Optional[RoleEnum] = Field(default="customer")  # Default role is "customer"
+    role: Optional[str] = Field(default="customer")  # Default role is "customer"
 
 class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

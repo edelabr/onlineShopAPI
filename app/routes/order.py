@@ -41,32 +41,38 @@ def delete_order_endpoint(id: int, db: Session = Depends(get_db_session), curren
 @router.get("/{customer_name}/pdf", response_model=List[OrderRead])
 def get_order_pdf_endpoint(
     customer_name: str,
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db_session),
     current_user: dict = Depends(require_role("admin", "customer"))
 ):
-    data = read_order(None, None, customer_name, None, 0, 0, db, current_user)
-    
+    data = read_order(None, None, customer_name, None, skip, limit, db, current_user)
+    print(data)
     filepath = generate_pdf(current_user["sub"], data)
     return FileResponse(filepath, media_type='application/pdf', filename=os.path.basename(filepath))
 
 @router.get("/{customer_name}/excel", response_model=List[OrderRead])
 def get_order_excel_endpoint(
     customer_name: str,
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db_session),
     current_user: dict = Depends(require_role("admin", "customer"))
 ):
-    data = read_order(None, None, customer_name, None, 0, 0, db, current_user)
+    data = read_order(None, None, customer_name, None, skip, limit, db, current_user)
     
     filepath = generate_excel(current_user["sub"], data)
-    return FileResponse(filepath, media_type='application/pdf', filename=os.path.basename(filepath))
+    return FileResponse(filepath, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename=os.path.basename(filepath))
 
 @router.get("/{customer_name}/csv", response_model=List[OrderRead])
 def get_order_csv_endpoint(
     customer_name: str,
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db_session),
     current_user: dict = Depends(require_role("admin", "customer"))
 ):
-    data = read_order(None, None, customer_name, None, 0, 0, db, current_user)
+    data = read_order(None, None, customer_name, None, skip, limit, db, current_user)
     
     filepath = generate_csv(current_user["sub"], data)
-    return FileResponse(filepath, media_type='application/pdf', filename=os.path.basename(filepath))
+    return FileResponse(filepath, media_type='text/csv', filename=os.path.basename(filepath))

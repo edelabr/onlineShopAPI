@@ -22,7 +22,7 @@ def generate_csv(customer_name, data):
     return path
 
 def generate_pdf(customer_name, data):
-    env = Environment(loader=FileSystemLoader("views"))
+    env = Environment(loader=FileSystemLoader("templates"))
     template = env.get_template("pdf_template.html")
     html_content = template.render(customer_name=customer_name, orders=data)
 

@@ -1,6 +1,6 @@
 import requests
 
-def get_products(skip: int = 0, limit: int = 0)
+def get_products(skip: int = 0, limit: int = 0):
     try:
         url = f"https://dummyjson.com/products?skip={skip}&limit={limit}"
         response = requests.get(url, verify=False)
@@ -24,7 +24,9 @@ def get_products(skip: int = 0, limit: int = 0)
 def get_product_by_id(product_id: int):
     try:
         products = get_products()
+        print(products)
         filtered_products = list(filter(lambda p: p["id"] == product_id, products))
+        print(filtered_products)
         if filtered_products:
             return filtered_products[0]
         print(f"No product found with id: {product_id}")
