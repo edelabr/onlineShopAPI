@@ -50,7 +50,7 @@ def generate_pdf(customer_name, data):
             return {"error": "No hay datos para generar el PDF"}
         
         env = Environment(loader=FileSystemLoader("app/templates"))
-        template = env.get_template("pdf_template.html")
+        template = env.get_template("pdf_template_orders.html")
         grand_total = sum(item['price'] * item['quantity'] for item in data)
         html_content = template.render(customer_name=customer_name, orders=data, grand_total=grand_total)
 
