@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Orders - {{ customer_name }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #333;
+        padding: 6px;
+        text-align: center;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      h2 {
+        text-align: center;
+      }
+      tfoot td {
+        font-weight: bold;
+        background-color: #f9f9f9;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Orders - {{ customer_name }}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Unit price</th>
+          <th>Total price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if orders and orders|length > 0 %} {% for item in orders %}
+        <tr>
+          <td>{{ item.created_at }}</td>
+          <td>{{ item.product }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.price }}</td>
+          <td>{{ item.price * item.quantity }}</td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="5">No orders available.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+      {% if orders and orders|length > 0 %}
+      <tfoot>
+        <tr>
+          <td colspan="4">Grand Total</td>
+          <td>{{ grand_total }}</td>
+        </tr>
+      </tfoot>
+      {% endif %}
+    </table>
+  </body>
+</html>

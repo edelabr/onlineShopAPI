@@ -16,3 +16,6 @@ revoked_tokens.txt
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Archivos generados mediante los end points
+/generated_files/

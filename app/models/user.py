@@ -5,12 +5,12 @@ from enum import Enum
 from pydantic import EmailStr
 
 class RoleEnum(str, Enum):
-    client = 'client'
+    customer = 'customer'
 
 class UserBase(SQLModel):
     username: str = Field(index=True, unique=True)
     email: EmailStr = Field(index=True, unique=True)
-    role: Optional[RoleEnum] = Field(default="client")  # Default role is "client"
+    role: Optional[str] = Field(default="customer")  # Default role is "customer"
 
 class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -20,7 +20,7 @@ class User(UserBase, table=True):
 
 class UserCreate(UserBase):
     password: str
-    role: RoleEnum = RoleEnum.user
+    role: RoleEnum = RoleEnum.customer
 
 class UserRead(UserBase):
     id: int

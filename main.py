@@ -5,14 +5,14 @@ import logging.config
 from starlette.concurrency import iterate_in_threadpool
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from app.routes import order, user, auth
+from app.routes import order, product, user, auth
 
 # Configurar logging
 config_path = os.path.join(os.path.dirname(__file__), 'logging.conf')
 logging.config.fileConfig(config_path)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Task Manager API")
+app = FastAPI(title="Online Shop API")
 
 # Middleware para registrar cada solicitud y respuesta
 @app.middleware("http")
@@ -24,11 +24,19 @@ async def log_requests(request: Request, call_next):
 
     res_body = [section async for section in response.body_iterator]
     response.body_iterator = iterate_in_threadpool(iter(res_body))
-    res_body = res_body[0].decode()
-    
+
+    content_type = response.headers.get("content-type", "")
+    if content_type.startswith("application/json") or content_type.startswith("text"):
+        try:
+            decoded_body = res_body[0].decode("utf-8")
+        except UnicodeDecodeError:
+            decoded_body = "<binary content>"
+    else:
+        decoded_body = "<binary content>"
+
     logger.info(f"{request.method} {request.url.path} - {response.status_code} - {process_time:.2f}s")
-    logger.info(f"Request: {request.method} {request.url} Body: {body.decode('utf-8') if body else 'No Body'}")
-    logger.info(f"Response: {res_body}")
+    logger.info(f"Request: {request.method} {request.url} Body: {body.decode('utf-8', errors='ignore') if body else 'No Body'}")
+    logger.info(f"Response: {decoded_body}")
 
     return response
 
@@ -38,7 +46,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Exception occurred: {exc}")
     return JSONResponse(
         status_code=500,
-        content={"Task Manager API": "An error occurred"},
+        content={"Online Shop API": "An error occurred"},
     )
 
 @app.on_event("startup")
@@ -57,6 +65,7 @@ def read_root():
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(order.router)
+app.include_router(product.router)
 
 if __name__ == "__main__":
     import uvicorn
