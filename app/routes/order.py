@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from typing import List, Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlmodel import Session
 
@@ -25,7 +25,12 @@ async def get_order_endpoint(
     db: Session = Depends(get_db_session),
     current_user: dict = Depends(require_role("admin", "customer"))
 ):
-    return await read_order(id, user_id, username, email, skip, limit, db, current_user)
+    orders = await read_order(id, user_id, username, email, skip, limit, db, current_user)
+
+    if not orders:
+        raise HTTPException(status_code=404, detail="Orders not found")
+    
+    return orders
 
 @router.post("/", response_model=OrderRead, status_code=201)
 async def add_order_endpoint(order: OrderCreate, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin", "customer"))):

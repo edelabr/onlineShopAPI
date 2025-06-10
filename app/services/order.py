@@ -49,9 +49,6 @@ async def read_order(
             new_orders.append(order_read)
     except Exception as e:
         raise Exception(e)
-    
-    if not orders:
-        raise HTTPException(status_code=404, detail="Orders not found")
 
     return new_orders
 

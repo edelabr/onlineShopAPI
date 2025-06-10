@@ -6,6 +6,7 @@ from sqlmodel import Session, select
 from app.auth.hashing import hash_password
 from app.models.user import User, UserCreate, UserUpdate
 from app.db.database import get_db_session
+from app.services.order import read_order
 
 def read_users(
     id: Optional[int] = None,
@@ -34,9 +35,6 @@ def read_users(
         users = db.execute(query).scalars().all()
     except Exception as e:
         raise Exception(e)
-
-    if not users:
-        raise HTTPException(status_code=404, detail="Users not found")
 
     return users
 
@@ -106,7 +104,7 @@ def update_user(
 
     return user
 
-def delete_user(
+async def delete_user(
     id: int, 
     db: Session = Depends(get_db_session), 
     current_user: dict = Depends()
@@ -120,7 +118,12 @@ def delete_user(
     if current_user["role"] in ["customer", "viewer"] and current_user["sub"] != user.username:
         raise HTTPException(status_code=403, detail="Insufficient permissions to delete other users")
     
-    try:
+    orders = await read_order(None, id, None, None, 0, 1, db, current_user)
+        
+    if len(orders) > 0:
+        raise HTTPException(status_code=409, detail="User cannot be deleted due to has associated orders")
+    
+    try:    
         db.delete(user)
         db.commit()
     except Exception as e:

@@ -59,12 +59,13 @@ def revoke_token(token: str):
         file.write(f"{token}\n")
 
 async def revoke_token_redis(token: str):
-    expiration = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    await redis_client.set(token, "revoked", ex=expiration)
+    if redis_client:
+        expiration = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        await redis_client.set(token, "revoked", ex=expiration)
 
 async def is_token_revoked_redis(token: str) -> bool:
     try:
-        if await redis_client.exists(token) == 1:  # Verificar si el token está revocado en redis
+        if redis_client and await redis_client.exists(token) == 1:  # Verificar si el token está revocado en redis
             raise JWTError("Token has been revoked")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
