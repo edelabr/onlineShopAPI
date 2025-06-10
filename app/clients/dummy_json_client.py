@@ -1,47 +1,100 @@
+import json
 import requests
+from app.db.redis_client import redis_client
 import urllib3
 
 # Desactiva advertencias por verificación SSL (¡solo para desarrollo!)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def get_products(skip: int = 0, limit: int = 0):
+# Tiempo de vida en caché (en segundos)
+CACHE_TTL = 600  # 10 minutos
+
+async def get_products(skip: int = 0, limit: int = 0, product_id: int = None):
     try:
-        url = f"https://dummyjson.com/products?skip={skip}&limit={limit}"
+        if product_id is not None:
+            cache_key = f"product_{product_id}"
+            url = f"https://dummyjson.com/products/{product_id}"
+        else:
+            cache_key = f"products_skip_{skip}_limit{limit}"
+            url = f"https://dummyjson.com/products?skip={skip}&limit={limit}"
+        
+        # Verificar si el producto ya está en caché
+        if redis_client:
+            cached_product = await redis_client.get(cache_key)
+            if cached_product:
+                return json.loads(cached_product)
+        
         response = requests.get(url, verify=False)
         if response.status_code == 200:
-            products = response.json().get("products", [])
-            return [
-                {
-                    "id": p["id"],
-                    "title": p["title"],
-                    "price": p["price"],
-                    "stock": p["stock"]
+            if product_id is not None:
+                product = response.json()
+                returned_data = {
+                    "id": product["id"],
+                    "title": product["title"],
+                    "price": product["price"],
+                    "stock": product["stock"]
                 }
-                for p in products
-            ]
+            else:
+                products = response.json().get("products", [])
+                returned_data = [
+                    {
+                        "id": p["id"],
+                        "title": p["title"],
+                        "price": p["price"],
+                        "stock": p["stock"]
+                    }
+                    for p in products
+                ]
+
+            # Guardar en Redis con TTL
+            if redis_client:
+                await redis_client.setex(cache_key, CACHE_TTL, json.dumps(returned_data))
+
+            return returned_data
         else:
             print(f"DummyJSON API response error: {response.status_code}")
     except Exception as e:
         print(f"DummyJSON API error: {e}")
+    
     return None
 
-def get_product_by_id(product_id: int):
+async def get_product_by_id(product_id: int):
     try:
-        products = get_products()
+        cache_key = f"product_{product_id}"
+    
+        # Verificar si el producto ya está en caché
+        if redis_client:
+            cached_product = await redis_client.get(cache_key)
+            if cached_product:
+                return json.loads(cached_product)
+        
+        products = await get_products()
         filtered_products = list(filter(lambda p: p["id"] == product_id, products))
 
         if filtered_products:
+            if redis_client:
+                await redis_client.setex(cache_key, CACHE_TTL, json.dumps(filtered_products[0]))
             return filtered_products[0]
         print(f"No product found with id: {product_id}")
     except Exception as e:
         print(f"DummyJSON API error: {e}")
     return None
 
-def get_product_by_name(product_name: str):
+async def get_product_by_name(product_name: str):
     try:
-        products = get_products()
+        cache_key = f"product_{product_name}"
+    
+        # Verificar si el producto ya está en caché
+        if redis_client:
+            cached_product = await redis_client.get(cache_key)
+            if cached_product:
+                return json.loads(cached_product)
+        
+        products = await get_products()
         filtered_products = list(filter(lambda p: p["title"] == product_name, products))
         if filtered_products:
+            if redis_client:
+                await redis_client.setex(cache_key, CACHE_TTL, json.dumps(filtered_products[0]))
             return filtered_products[0]
         print(f"No product found with name: {product_name}")
     except Exception as e:

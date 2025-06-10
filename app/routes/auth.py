@@ -54,7 +54,7 @@ def refresh_token(refresh_token: str, session: Session = Depends(get_db_session)
          raise Exception(e)
 
 @router.post("/logout")
-def logout(current_user: dict = Depends(get_current_user), token: str = Depends(oauth2_scheme), session: Session = Depends(get_db_session)):
+async def logout(current_user: dict = Depends(get_current_user), token: str = Depends(oauth2_scheme), session: Session = Depends(get_db_session)):
     try:
         user = session.query(User).filter(User.username == current_user["sub"]).first()
         if not user:
@@ -64,7 +64,7 @@ def logout(current_user: dict = Depends(get_current_user), token: str = Depends(
         session.add(user)
         session.commit()
         revoke_token(token)
-        revoke_token_redis(token)
+        await revoke_token_redis(token)
         logger.info(f"User {user.username} logged out successfully")
         return {"message": "Successfully logged out"}
     except Exception as e:

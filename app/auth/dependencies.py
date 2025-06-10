@@ -5,12 +5,12 @@ from app.auth.jwt import is_token_revoked_redis, verify_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme)):
     #Comprobar el token desde el fichero
     payload = verify_access_token(token)
 
     #comprobar el token en redis
-    payload_redis = is_token_revoked_redis(token)
+    payload_redis = await is_token_revoked_redis(token)
     if not payload or not payload_redis:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return payload

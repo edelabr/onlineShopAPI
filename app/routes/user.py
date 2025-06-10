@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 
 from app.auth.dependencies import require_role
@@ -19,7 +19,12 @@ def get_users_endpoint(
     db: Session = Depends(get_db_session),
     current_user: dict = Depends(require_role("admin", "customer"))
 ):
-    return read_users(id, username, email, skip, limit, db, current_user)
+    users = read_users(id, username, email, skip, limit, db, current_user)
+
+    if not users:
+        raise HTTPException(status_code=404, detail="Users not found")
+    
+    return users
 
 @router.post("/", response_model=UserRead, status_code=201)
 def add_user_endpoint(user: UserCreate, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin"))):
@@ -30,5 +35,5 @@ def update_user_endpoint(id: int, user_update: UserUpdate, db: Session = Depends
     return update_user(id, user_update, db, current_user)
     
 @router.delete("/{id}")
-def delete_user_endpoint(id: int, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin", "customer"))):
-    return delete_user(id, db, current_user)
+async def delete_user_endpoint(id: int, db: Session = Depends(get_db_session), current_user: dict = Depends(require_role("admin", "customer"))):
+    return await delete_user(id, db, current_user)

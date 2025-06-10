@@ -2,12 +2,12 @@ from typing import Optional
 from fastapi import Depends, HTTPException
 from sqlmodel import Session, select
 
-from app.clients.dummy_json_client import get_product_by_id, get_product_by_name
+from app.clients.dummy_json_client import get_product_by_name, get_products
 from app.db.database import get_db_session
 from app.models.order import Order, OrderCreate, OrderRead, OrderUpdate
 from app.models.user import User
 
-def read_order(
+async def read_order(
     id: Optional[int] = None,
     user_id: Optional[int] = None,
     username: Optional[str] = None,
@@ -37,7 +37,7 @@ def read_order(
     
         new_orders = []
         for order in orders:
-            product = get_product_by_id(order[1])
+            product = await get_products(None, None, order[1])
             order_read = OrderRead(
                 id=order[0],
                 product=product["title"],
@@ -49,13 +49,10 @@ def read_order(
             new_orders.append(order_read)
     except Exception as e:
         raise Exception(e)
-    
-    if not orders:
-        raise HTTPException(status_code=404, detail="Orders not found")
 
     return new_orders
 
-def create_order(
+async def create_order(
     order_create: OrderCreate, 
     db: Session = Depends(get_db_session), 
     current_user: dict = Depends()
@@ -64,7 +61,7 @@ def create_order(
     owner_query = select(User).where(User.username == order_create.customer_username)
     owner = db.exec(owner_query).first()
 
-    product = get_product_by_name(order_create.product)
+    product = await get_product_by_name(order_create.product)
 
     if owner is None:
         raise HTTPException(status_code=404, detail="Owner not found")
@@ -99,7 +96,7 @@ def create_order(
 
     return returned_new_list 
 
-def update_order(
+async def update_order(
     id: int,
     order_update: OrderUpdate,
     db: Session = Depends(get_db_session),
@@ -125,7 +122,7 @@ def update_order(
         db.commit()
         db.refresh(order)
 
-        product = get_product_by_id(order.id)
+        product = await get_products(None, None, order.id)
 
         returned_new_list = OrderRead(
         id=order.id,
@@ -141,7 +138,7 @@ def update_order(
 
     return returned_new_list
 
-def delete_order(
+async def delete_order(
     id: int, 
     db: Session = Depends(get_db_session), 
     current_user: dict = Depends()
